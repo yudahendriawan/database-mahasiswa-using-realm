@@ -1,7 +1,9 @@
 package com.example.learnrealmyuk;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -40,12 +42,19 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         btn_kembali = findViewById(R.id.btnCancel);
 
         //get extras from intent
-        id = Integer.parseInt(getIntent().getStringExtra("id"));
-        nim = getIntent().getStringExtra("nim");
-        nama = getIntent().getStringExtra("nama");
+        if(getIntent().hasExtra("id")) {
+            id = Integer.parseInt(getIntent().getStringExtra("id"));
 
-        etNama.setText(nama);
-        etNim.setText(nim);
+            if(getIntent().hasExtra("nim")) {
+                nim = getIntent().getStringExtra("nim");
+                etNim.setText(nim);
+            }
+
+            if(getIntent().hasExtra("nama")) {
+                nama = getIntent().getStringExtra("nama");
+                etNama.setText(nama);
+            }
+        }
 
         btn_kembali.setOnClickListener(this);
         btn_hapus.setOnClickListener(this);
@@ -56,17 +65,36 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == btn_ubah) {
-            realmHelper.update(id, Integer.parseInt(etNim.getText().toString()), etNama.getText().toString());
-            Toast.makeText(DetailActivity.this, "Update Success", Toast.LENGTH_SHORT).show();
-            etNim.setText("");
-            etNama.setText("");
-            finish();
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmation")
+                    .setMessage("Do you really want to update this item?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            realmHelper.update(id, Integer.parseInt(etNim.getText().toString()), etNama.getText().toString());
+                            Toast.makeText(DetailActivity.this, "Update Success", Toast.LENGTH_SHORT).show();
+                            etNim.setText("");
+                            etNama.setText("");
+                            finish();
+                        }})
+                    .setNegativeButton("Tidak", null).show();
+
         }
 
         else if (v == btn_hapus) {
-            realmHelper.delete(id);
-            Toast.makeText(DetailActivity.this, "Delete Success", Toast.LENGTH_SHORT).show();
-            finish();
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmation")
+                    .setMessage("Do you really want to delete this item?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            realmHelper.delete(id);
+                            Toast.makeText(DetailActivity.this, "Delete Success", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }})
+                    .setNegativeButton("Tidak", null).show();
+
+
         }
 
         else if (v == btn_kembali) {

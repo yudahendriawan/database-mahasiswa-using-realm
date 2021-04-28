@@ -46,26 +46,13 @@ public class RealmHelper {
 
     //untuk mengupdate data
     public void update(final Integer id, final Integer nim, final String nama){
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                MahasiswaModel model = realm.where(MahasiswaModel.class)
-                        .equalTo("id", id)
-                        .findFirst();
-                model.setNim(nim);
-                model.setNama(nama);
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
-                Log.e("pppp", "onSuccess: Update Successfully");
-            }
-        }, new Realm.Transaction.OnError() {
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-            }
-        });
+        realm.executeTransactionAsync(realm -> {
+            MahasiswaModel model = realm.where(MahasiswaModel.class)
+                    .equalTo("id", id)
+                    .findFirst();
+            model.setNim(nim);
+            model.setNama(nama);
+        }, () -> Log.e("pppp", "onSuccess: Update Successfully"), Throwable::printStackTrace);
     }
 
     //untuk menghapus data
@@ -74,12 +61,7 @@ public class RealmHelper {
                 .equalTo("id",id)
                 .findAll();
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                results.deleteFromRealm(0);
-            }
-        });
+        realm.executeTransaction(realm -> results.deleteFromRealm(0));
 
     }
 }
